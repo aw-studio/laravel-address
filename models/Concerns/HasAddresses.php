@@ -2,6 +2,7 @@
 
 namespace App\Models\Concerns;
 
+use App\Models\Address;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 
@@ -14,12 +15,7 @@ trait HasAddresses
      */
     public function addresses(): MorphMany
     {
-        return $this->morphMany(
-            'addresses',
-            'addressable',
-            'addressable_type',
-            'addressable_id'
-        );
+        return $this->morphMany(Address::class, 'addressable');
     }
 
     /**
@@ -29,14 +25,11 @@ trait HasAddresses
      */
     public function primary_address(): MorphOne
     {
-        return $this->morphOne(
-            'addresses',
-            'addressable',
-            'addressable_type',
-            'addressable_id'
-        )->ofMany(['id' => 'max'], function ($subQuery) {
-            $subQuery->where('is_primary', true);
-        });
+        return $this
+            ->morphOne(Address::class, 'addressable')
+            ->ofMany(['id' => 'max'], function ($subQuery) {
+                $subQuery->where('is_primary', true);
+            });
     }
 
     /**
@@ -46,16 +39,13 @@ trait HasAddresses
      */
     public function latest_address(): MorphOne
     {
-        return $this->morphOne(
-            'addresses',
-            'addressable',
-            'addressable_type',
-            'addressable_id'
-        )->latestOfMany();
+        return $this
+            ->morphOne(Address::class, 'addressable')
+            ->latestOfMany();
     }
 
     /**
-     * Boot the addressable trait for the model.
+     * Boot the HasAddresses trait for the model.
      *
      * @return void
      */
